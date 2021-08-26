@@ -1,0 +1,19 @@
+{
+  "name": "cit",
+  "version": "1.0.0",
+  "description": "full-text code search inspired by zoekt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo 'No Test'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dna2github/cit.git"
+  },
+  "author": "Seven Lju",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dna2github/cit/issues"
+  },
+  "homepage": "https://github.com/dna2github/cit#readme"
+}
