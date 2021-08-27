@@ -2,10 +2,9 @@ const i_fs = require('fs');
 const i_path = require('path');
 const i_lf = require('./large_file');
 const i_fo = require('./file_op');
+const i_se = require('./search_engine');
 
 function AnalyzeProject(srcRoot, outDir, opt) {
-   const error = [];
-   const fileList = {};
    srcRoot = i_path.resolve(srcRoot);
    outDir = i_path.resolve(outDir);
    return new Promise(async (r, e) => {
@@ -130,6 +129,10 @@ function AnalyzeProject(srcRoot, outDir, opt) {
       //       for each file
       //       - index add/del/update
       const changeP = i_path.join(outDir, '_changelist');
+      const indexP = i_path.join(outDir, '_index.db');
+      const needInit = !i_fs.existsSync(indexP);
+      const indexDB = new i_se.Database(indexP);
+      if (needInit) await i_se.Init(indexDB);
       const changeF = new i_lf.LineReader(changeP);
       await changeF.Open();
       let line;
@@ -137,16 +140,24 @@ function AnalyzeProject(srcRoot, outDir, opt) {
          if (!line) continue;
          const obj = JSON.parse(line);
          const path = i_path.join(srcRoot, obj.p);
-         const is_binary = await i_fo.IsBinaryFile(path);
+         const is_binary = obj.a==='d'?true:await i_fo.IsBinaryFile(path);
          switch (obj.a) {
             case 'u':
                console.log('update', obj, is_binary);
+               if (!is_binary) {
+                  await i_se.IndexDel(indexDB, path, srcRoot, obj.h);
+                  await i_se.IndexAdd(indexDB, path, srcRoot, obj.h_);
+               }
                break;
             case 'd':
-               console.log('delete', obj, is_binary);
+               console.log('delete', obj);
+               await i_se.IndexDel(indexDB, path, srcRoot, obj.h);
                break;
             case 'a':
                console.log('append', obj, is_binary);
+               if (!is_binary) {
+                  await i_se.IndexAdd(indexDB, path, srcRoot, obj.h_);
+               }
                break;
             default:
                throw `unknown action type: ${obj.a}`;
@@ -160,3 +171,10 @@ function AnalyzeProject(srcRoot, outDir, opt) {
 module.exports = {
    AnalyzeProject,
 };
+
+if (require.main === module) {
+   const srcDir = i_path.resolve(process.argv[2]);
+   const outDir = i_path.resolve(process.argv[3]);
+   console.log(srcDir, outDir);
+   AnalyzeProject(srcDir, outDir);
+}

@@ -75,7 +75,7 @@ async function IsBinaryFile(path) {
          let n = stat.size;
          if (n > 1024 * 1024) n = 1024 * 1024;
          const buf = Buffer.alloc(1024 * 1024);
-         i_fs.read(fd, { bufffer: buf, length: n }, (err, n, raw) => {
+         i_fs.read(fd, { buffer: buf, length: n }, (err, n, raw) => {
             if (err) return e(err);
             const probe = raw.slice(0, n).toString();
             const isbinary = probe.toString().indexOf('\x00') >= 0;

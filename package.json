@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dna2github/cit/issues"
   },
-  "homepage": "https://github.com/dna2github/cit#readme"
+  "homepage": "https://github.com/dna2github/cit#readme",
+  "dependencies": {
+    "sqlite3": "^5.0.2"
+  }
 }
